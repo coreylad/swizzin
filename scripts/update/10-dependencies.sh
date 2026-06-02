@@ -66,15 +66,18 @@ elif [[ $(_os_distro) == "debian" ]]; then
             rm "$tmpFile"
         fi
     else
-        if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
-            echo_info "Enabling contrib repo"
-            apt-add-repository -y contrib >> ${log} 2>&1
+        components=(contrib non-free)
+        tmpFile=$(mktemp)
+        cp /etc/apt/sources.list "$tmpFile"
+        for component in "${components[@]}"; do
+            sed -i "/^deb[[:space:]]/{/\b${component}\b/! s/$/ ${component}/}" "$tmpFile"
+        done
+
+        if ! cmp -s /etc/apt/sources.list "$tmpFile"; then
             trigger_apt_update=true
-        fi
-        if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
-            echo_info "Enabling non-free repo"
-            apt-add-repository -y non-free >> ${log} 2>&1
-            trigger_apt_update=true
+            mv "$tmpFile" /etc/apt/sources.list
+        else
+            rm "$tmpFile"
         fi
     fi
 fi
