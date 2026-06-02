@@ -45,11 +45,13 @@ function _source_setup() {
         echo "Best of luck and please follow the contribution guidelines cheerio"
     else
         echo -e "...\tCloning swizzin repo to localhost"
-        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
+        git clone https://github.com/coreylad/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo -e "\tSwizzin cloned!"
     fi
 
-    ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
+    if [[ ! -e /usr/local/bin/swizzin && ! -L /usr/local/bin/swizzin ]]; then
+        ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
+    fi
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
 
