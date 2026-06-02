@@ -70,7 +70,7 @@ elif [[ $(_os_distro) == "debian" ]]; then
         tmpFile=$(mktemp)
         cp /etc/apt/sources.list "$tmpFile"
         for component in "${components[@]}"; do
-            sed -i "/^deb[[:space:]]/{/\b${component}\b/! s/$/ ${component}/}" "$tmpFile"
+            sed -E -i "/^deb(-src)?[[:space:]]/{/\b${component}\b/! s/$/ ${component}/}" "$tmpFile"
         done
 
         if ! cmp -s /etc/apt/sources.list "$tmpFile"; then
