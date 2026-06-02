@@ -25,8 +25,13 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         done
 
         if ! cmp -s "$listFile" "$tmpFile"; then
-            trigger_apt_update=true
-            mv "$tmpFile" "$listFile"
+            if mv "$tmpFile" "$listFile"; then
+                trigger_apt_update=true
+            else
+                rm -f "$tmpFile"
+                echo_error "Failed to update $listFile"
+                exit 1
+            fi
         else
             rm "$tmpFile"
         fi
@@ -65,16 +70,28 @@ elif [[ $(_os_distro) == "debian" ]]; then
         else
             rm "$tmpFile"
         fi
-    else
-        if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
-            echo_info "Enabling contrib repo"
-            apt-add-repository -y contrib >> ${log} 2>&1
-            trigger_apt_update=true
-        fi
-        if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
-            echo_info "Enabling non-free repo"
-            apt-add-repository -y non-free >> ${log} 2>&1
-            trigger_apt_update=true
+    elif [[ -f /etc/apt/sources.list ]]; then
+        components=(contrib non-free)
+        tmpFile=$(mktemp)
+        cp /etc/apt/sources.list "$tmpFile"
+        chmod --reference=/etc/apt/sources.list "$tmpFile"
+        chown --reference=/etc/apt/sources.list "$tmpFile"
+        for component in "${components[@]}"; do
+            sed -Ei "/^[[:space:]]*deb([[:space:]]|$)/ {
+                /^[[:space:]]*#/! /[[:space:]]$component([[:space:]]|$)/! s/$/ $component/
+            }" "$tmpFile"
+        done
+
+        if ! cmp -s /etc/apt/sources.list "$tmpFile"; then
+            if mv "$tmpFile" /etc/apt/sources.list; then
+                trigger_apt_update=true
+            else
+                rm -f "$tmpFile"
+                echo_error "Failed to update /etc/apt/sources.list"
+                exit 1
+            fi
+        else
+            rm "$tmpFile"
         fi
     fi
 fi
