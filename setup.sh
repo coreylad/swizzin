@@ -185,6 +185,7 @@ function _option_parse() {
 }
 _option_parse "$@"
 
+# _os ensures the host is Debian/Ubuntu with a supported release codename (focal, bullseye, jammy, bookworm, trixie, noble), installs lsb-release if missing, and exits on unsupported systems.
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
     if [ ! -d /root/logs ]; then mkdir /root/logs; fi
@@ -198,7 +199,7 @@ _os() {
         echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
         exit 1
     fi
-    if [[ ! $codename =~ ^(focal|bullseye|jammy|bookworm|noble)$ ]]; then
+    if [[ ! $codename =~ ^(focal|bullseye|jammy|bookworm|trixie|noble)$ ]]; then
         echo_error "Your release ($codename) of $distribution is not supported."
         exit 1
     fi
