@@ -88,7 +88,7 @@ export -f _get_last_apt_log
 
 #Inserts marker into the $log so we know how much up we need to go to get to the beginning of the run
 _apt_logcheck_mark() {
-    _apt_logcheck_marker_text=$(uuidgen)
+    _apt_logcheck_marker_text=$(cat /proc/sys/kernel/random/uuid)
     echo "$_apt_logcheck_marker_text" >> $log
     echo_log_only "Inserted apt logcheck marker"
 }
