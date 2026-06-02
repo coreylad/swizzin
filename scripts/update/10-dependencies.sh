@@ -69,6 +69,8 @@ elif [[ $(_os_distro) == "debian" ]]; then
         components=(contrib non-free)
         tmpFile=$(mktemp)
         cp /etc/apt/sources.list "$tmpFile"
+        chmod --reference=/etc/apt/sources.list "$tmpFile"
+        chown --reference=/etc/apt/sources.list "$tmpFile"
         for component in "${components[@]}"; do
             sed -Ei "/^[[:space:]]*deb([[:space:]]|$)/ {
                 /^[[:space:]]*#/! /[[:space:]]$component([[:space:]]|$)/! s/$/ $component/
