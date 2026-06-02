@@ -27,7 +27,7 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
             rm "$tmpFile"
         fi
     else
-        # Legacy sources.list – use sed so we don't need add-apt-repository yet.
+        # Legacy sources.list - use sed so we don't need add-apt-repository yet.
         components=(universe multiverse restricted)
         tmpFile=$(mktemp)
         cp /etc/apt/sources.list "$tmpFile"
