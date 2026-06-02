@@ -25,8 +25,13 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         done
 
         if ! cmp -s "$listFile" "$tmpFile"; then
-            trigger_apt_update=true
-            mv "$tmpFile" "$listFile"
+            if mv "$tmpFile" "$listFile"; then
+                trigger_apt_update=true
+            else
+                rm -f "$tmpFile"
+                echo_error "Failed to update $listFile"
+                exit 1
+            fi
         else
             rm "$tmpFile"
         fi
@@ -78,8 +83,13 @@ elif [[ $(_os_distro) == "debian" ]]; then
         done
 
         if ! cmp -s /etc/apt/sources.list "$tmpFile"; then
-            trigger_apt_update=true
-            mv "$tmpFile" /etc/apt/sources.list
+            if mv "$tmpFile" /etc/apt/sources.list; then
+                trigger_apt_update=true
+            else
+                rm -f "$tmpFile"
+                echo_error "Failed to update /etc/apt/sources.list"
+                exit 1
+            fi
         else
             rm "$tmpFile"
         fi
